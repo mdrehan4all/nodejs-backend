@@ -46,8 +46,31 @@ app.get(ROOTDIR + "/user/:id", async (req, res)=>{
     res.send(user);
 });
 
-app.get(ROOTDIR + "/users", async (req, res)=>{
+app.delete(ROOTDIR + "/user/:id", async (req, res)=>{
+    let id = req.params.id;
     
+    // Check Token
+    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
+    if (!token) { return res.status(401).send({ error: 'Unauthorized: Missing bearer token' }); }
+    let isLogged = await database.isLogged(token);
+    if(isLogged.status == 0){ return res.status(401).send({ error: 'Unauthorized: Invalid bearer token' }); }
+    if(isLogged.status == 1){ console.log("Authorized") }
+    // Check Token End
+
+    // ID 1 is admin
+    if(id == 1){
+        res.status(200)
+        res.send({error: "not allowed"});
+        return;
+    }
+    let user = await database.removeUser(id);
+
+    res.status(200)
+    res.send(user);
+});
+
+app.get(ROOTDIR + "/users", async (req, res)=>{
+
     // Check Token
     const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
     if (!token) { return res.status(401).send({ error: 'Unauthorized: Missing bearer token' }); }

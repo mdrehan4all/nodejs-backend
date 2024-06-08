@@ -41,6 +41,15 @@ async function addUser(email, password, name){
     }
 }
 
+async function removeUser(id){
+    try{
+        let [result] = await pool.query("DELETE FROM users WHERE id=? LIMIT 1", [id]);
+        return { status: 1, message: 'Deleted'};
+    }catch(err){
+        return { status: 0, message: 'Something went wrong'};
+    }
+}
+
 async function loginUser(email, password) {
     try {
         let [result] = await pool.query("SELECT id,name,email,password, token FROM users WHERE email=?", [email]);
@@ -90,4 +99,4 @@ async function updateToken(id){
     return token;
 }
 
-module.exports = {getUsers, getUser, addUser, loginUser, isLogged};
+module.exports = {getUsers, getUser, addUser, loginUser, isLogged, removeUser};
